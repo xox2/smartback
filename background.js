@@ -13,15 +13,10 @@ async function updateHistory(details) {
     const tabInfo = tabsData[details.tabId];
 
     if (tabInfo) {
-      const now = details.timeStamp;
-      const lastTimestamp = tabInfo.lastNavigationTimestamp || 0;
-      const timeDiff = now - lastTimestamp;
-      tabInfo.lastNavigationTimestamp = now;
+      const isRedirect = details.transitionQualifiers.includes("server_redirect") || details.transitionQualifiers.includes("client_redirect");
+      const isInitialRedirect = tabInfo.openerTabId !== undefined && isRedirect && tabInfo.history.length === 1;
 
-      const isNewTabWithInitialNavigation =
-        tabInfo.openerTabId !== undefined && tabInfo.history.length < 2;
-
-      if (isNewTabWithInitialNavigation && timeDiff < 3000 && tabInfo.history.length > 0) {
+      if (isInitialRedirect) {
         tabInfo.history[tabInfo.currentIndex] = details.url;
       } else {
         const existingIndex = tabInfo.history.indexOf(details.url);
@@ -50,8 +45,7 @@ chrome.tabs.onCreated.addListener(async (tab) => {
   tabsData[tab.id] = {
     history: [],
     currentIndex: -1,
-    openerTabId: tab.openerTabId,
-    lastNavigationTimestamp: 0
+    openerTabId: tab.openerTabId
   };
   await setTabsData(tabsData);
 });
