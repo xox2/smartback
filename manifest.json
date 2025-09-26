@@ -2,7 +2,6 @@
    "manifest_version": 3,
    "name": "Smart Back",
    "version": "2.0.0",
-   "description": "Enhances your browsing workflow by enabling a simple gesture: double-click the back button (either on your mouse or using the keyboard shortcut) to close the current tab. This action only works when you are at the beginning of the tab's navigation history, preventing any accidental closures while browsing.",
    "icons": {
       "16": "icons/icon16.png",
       "32": "icons/icon32.png",
