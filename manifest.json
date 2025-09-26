@@ -1,6 +1,13 @@
 {
-   "action": {
-      "default_title": "Smart Back"
+   "manifest_version": 3,
+   "name": "Smart Back",
+   "version": "2.0.0",
+   "description": "Enhances your browsing workflow by enabling a simple gesture: double-click the back button (either on your mouse or using the keyboard shortcut) to close the current tab. This action only works when you are at the beginning of the tab's navigation history, preventing any accidental closures while browsing.",
+   "icons": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
    },
    "background": {
       "service_worker": "background.js"
@@ -8,17 +15,12 @@
    "content_scripts": [ {
       "js": [ "content.js" ],
       "matches": [ "<all_urls>" ],
-      "run_at": "document_idle"
+      "run_at": "document_end"
    } ],
-   "host_permissions": [ "<all_urls>" ],
-   "manifest_version": 3,
-   "name": "Smart Back",
-   "permissions": [ "tabs", "scripting", "activeTab", "webNavigation", "storage" ],
-   "version": "1.3.2",
-   "icons": {
-      "16": "icons/icon16.png",
-      "32": "icons/icon32.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
+   "permissions": [
+      "tabs"
+   ],
+   "action": {
+      "default_title": "Smart Back"
    }
 }
