@@ -13,20 +13,30 @@ async function updateHistory(details) {
     const tabInfo = tabsData[details.tabId];
 
     if (tabInfo) {
+      if (tabInfo.currentIndex > -1 && tabInfo.history[tabInfo.currentIndex] === details.url) {
+        return;
+      }
+
       const isRedirect = details.transitionQualifiers.includes("server_redirect") || details.transitionQualifiers.includes("client_redirect");
-      const isInitialRedirect = tabInfo.openerTabId !== undefined && isRedirect && tabInfo.history.length === 1;
+      const isInitialRedirect = tabInfo.openerTabId !== undefined && isRedirect && tabInfo.history.length <= 1;
+      const isBackForward = details.transitionQualifiers.includes("forward_back");
 
       if (isInitialRedirect) {
-        tabInfo.history[tabInfo.currentIndex] = details.url;
-      } else {
+        if (tabInfo.history.length === 0) {
+          tabInfo.history.push(details.url);
+        } else {
+          tabInfo.history[0] = details.url;
+        }
+        tabInfo.currentIndex = 0;
+      } else if (isBackForward) {
         const existingIndex = tabInfo.history.indexOf(details.url);
         if (existingIndex !== -1) {
           tabInfo.currentIndex = existingIndex;
-        } else {
-          tabInfo.history = tabInfo.history.slice(0, tabInfo.currentIndex + 1);
-          tabInfo.history.push(details.url);
-          tabInfo.currentIndex = tabInfo.history.length - 1;
         }
+      } else {
+        tabInfo.history = tabInfo.history.slice(0, tabInfo.currentIndex + 1);
+        tabInfo.history.push(details.url);
+        tabInfo.currentIndex = tabInfo.history.length - 1;
       }
 
       await setTabsData(tabsData);
