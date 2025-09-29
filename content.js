@@ -37,7 +37,7 @@ function handleBackNavigation() {
 
     const now = new Date().getTime();
     
-    if (now - lastBackClickTime < 1000) {
+    if (now - lastBackClickTime < 500) {
       chrome.runtime.sendMessage({ action: "closeTab" });
       lastBackClickTime = 0;
     } else {
