@@ -2,6 +2,7 @@
    "manifest_version": 3,
    "name": "Smart Back",
    "version": "2.1.0",
+   "description": "On tabs with no back history, you can close the current tab and return to the previous one by quickly using the mouse back button or keyboard shortcut twice.",
    "icons": {
       "16": "icons/icon16.png",
       "32": "icons/icon32.png",
