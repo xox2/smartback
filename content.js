@@ -33,8 +33,6 @@ function flashScreen() {
 
 function handleBackNavigation() {
   if (!navigation.canGoBack) {
-    flashScreen();
-
     const now = new Date().getTime();
     
     if (now - lastBackClickTime < 500) {
@@ -42,6 +40,7 @@ function handleBackNavigation() {
       lastBackClickTime = 0;
     } else {
       lastBackClickTime = now;
+      flashScreen();
     }
   }
 }
