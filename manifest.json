@@ -18,7 +18,8 @@
       "run_at": "document_start"
    } ],
    "permissions": [
-      "tabs"
+      "tabs",
+      "storage"
    ],
    "action": {
       "default_title": "Smart Back"

@@ -1,24 +1,40 @@
-chrome.runtime.onMessage.addListener(async (message, sender) => {
-  // content.jsから "closeTab" メッセージを受け取った場合
-  if (message.action === "closeTab" && sender.tab?.id) {
-    const currentTabId = sender.tab.id;
-    const currentTab = await chrome.tabs.get(currentTabId);
-    const openerId = currentTab.openerTabId;
+let lastActiveTabId = null;
 
-    // このタブを開いた元のタブがあれば、そちらをアクティブにする
-    if (openerId) {
-      try {
-        // 元のタブが存在するか確認
-        const openerTab = await chrome.tabs.get(openerId);
-        if (openerTab) {
-          await chrome.tabs.update(openerId, { active: true });
-        }
-      } catch (error) {
-        // 元のタブが見つからない場合は何もしない
+chrome.tabs.onActivated.addListener(activeInfo => {
+  lastActiveTabId = activeInfo.tabId;
+});
+
+chrome.tabs.onCreated.addListener(tab => {
+  if (lastActiveTabId && tab.id) {
+    chrome.storage.session.set({ [tab.id]: lastActiveTabId });
+  }
+});
+
+chrome.tabs.onRemoved.addListener(tabId => {
+  chrome.storage.session.remove(String(tabId));
+});
+
+chrome.runtime.onMessage.addListener(async (message, sender) => {
+  if (message.action === "closeTab" && sender.tab?.id) {
+    const closingTabId = sender.tab.id;
+    let targetTabId = null;
+
+    try {
+      const data = await chrome.storage.session.get(String(closingTabId));
+      targetTabId = data[closingTabId];
+
+      if (!targetTabId) {
+        const closingTab = await chrome.tabs.get(closingTabId);
+        targetTabId = closingTab.openerTabId;
       }
+
+      if (targetTabId) {
+        await chrome.tabs.update(targetTabId, { active: true });
+      }
+    } catch (error) {
+        // 元のタブが見つからない場合は何もしない
+    } finally {
+        await chrome.tabs.remove(closingTabId);
     }
-    
-    // 現在のタブを閉じる
-    await chrome.tabs.remove(currentTabId);
   }
 });
