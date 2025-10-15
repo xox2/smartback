@@ -1,4 +1,5 @@
 let lastBackClickTime = 0;
+let flashTimeoutId = null;
 
 function flashScreen() {
   const flashOverlay = document.createElement('div');
@@ -36,11 +37,15 @@ function handleBackNavigation() {
     const now = new Date().getTime();
     
     if (now - lastBackClickTime < 500) {
+      if (flashTimeoutId) {
+        clearTimeout(flashTimeoutId);
+        flashTimeoutId = null;
+      }
       chrome.runtime.sendMessage({ action: "closeTab" });
       lastBackClickTime = 0;
     } else {
       lastBackClickTime = now;
-      flashScreen();
+      flashTimeoutId = setTimeout(flashScreen, 300);
     }
   }
 }
