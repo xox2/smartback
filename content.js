@@ -36,7 +36,7 @@ function handleBackNavigation() {
   if (!navigation.canGoBack) {
     const now = new Date().getTime();
     
-    if (now - lastBackClickTime < 500) {
+    if (now - lastBackClickTime < 400) {
       if (flashTimeoutId) {
         clearTimeout(flashTimeoutId);
         flashTimeoutId = null;
@@ -45,7 +45,7 @@ function handleBackNavigation() {
       lastBackClickTime = 0;
     } else {
       lastBackClickTime = now;
-      flashTimeoutId = setTimeout(flashScreen, 300);
+      flashTimeoutId = setTimeout(flashScreen, 200);
     }
   }
 }
