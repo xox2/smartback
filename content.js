@@ -1,5 +1,13 @@
 let lastBackClickTime = 0;
 let flashTimeoutId = null;
+let cachedTargetTabId = null; 
+
+chrome.runtime.sendMessage({ action: "getSmartBackTarget" }, (response) => {
+  if (chrome.runtime.lastError) return;
+  if (response && response.targetTabId) {
+    cachedTargetTabId = response.targetTabId;
+  }
+});
 
 function flashScreen() {
   const flashOverlay = document.createElement('div');
@@ -41,7 +49,12 @@ function handleBackNavigation() {
         clearTimeout(flashTimeoutId);
         flashTimeoutId = null;
       }
-      chrome.runtime.sendMessage({ action: "closeTab" });
+      
+      chrome.runtime.sendMessage({ 
+        action: "closeTab", 
+        targetTabId: cachedTargetTabId 
+      });
+      
       lastBackClickTime = 0;
     } else {
       lastBackClickTime = now;

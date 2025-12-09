@@ -14,27 +14,39 @@ chrome.tabs.onRemoved.addListener(tabId => {
   chrome.storage.session.remove(String(tabId));
 });
 
-chrome.runtime.onMessage.addListener(async (message, sender) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "getSmartBackTarget" && sender.tab?.id) {
+    const currentTabId = String(sender.tab.id);
+    chrome.storage.session.get(currentTabId).then(data => {
+      sendResponse({ targetTabId: data[currentTabId] || null });
+    });
+    return true; 
+  }
+
   if (message.action === "closeTab" && sender.tab?.id) {
-    const closingTabId = sender.tab.id;
-    let targetTabId = null;
+    (async () => {
+      const closingTabId = sender.tab.id;
+      let targetTabId = message.targetTabId;
 
-    try {
-      const data = await chrome.storage.session.get(String(closingTabId));
-      targetTabId = data[closingTabId];
+      try {
+        if (!targetTabId) {
+          const data = await chrome.storage.session.get(String(closingTabId));
+          targetTabId = data[closingTabId];
 
-      if (!targetTabId) {
-        const closingTab = await chrome.tabs.get(closingTabId);
-        targetTabId = closingTab.openerTabId;
-      }
+          if (!targetTabId) {
+            const closingTab = await chrome.tabs.get(closingTabId);
+            targetTabId = closingTab.openerTabId;
+          }
+        }
 
-      if (targetTabId) {
-        await chrome.tabs.update(targetTabId, { active: true });
-      }
-    } catch (error) {
-        // 元のタブが見つからない場合は何もしない
-    } finally {
+        if (targetTabId) {
+          await chrome.tabs.update(targetTabId, { active: true });
+        }
+      } catch (error) {
+        // エラー無視
+      } finally {
         await chrome.tabs.remove(closingTabId);
-    }
+      }
+    })();
   }
 });
