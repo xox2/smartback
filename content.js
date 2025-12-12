@@ -2,12 +2,20 @@ let lastBackClickTime = 0;
 let flashTimeoutId = null;
 let cachedTargetTabId = null; 
 
-chrome.runtime.sendMessage({ action: "getSmartBackTarget" }, (response) => {
-  if (chrome.runtime.lastError) return;
-  if (response && response.targetTabId) {
-    cachedTargetTabId = response.targetTabId;
-  }
-});
+function updateTargetTabId() {
+  chrome.runtime.sendMessage({ action: "getSmartBackTarget" }, (response) => {
+    if (chrome.runtime.lastError) {
+      return;
+    }
+    if (response && response.targetTabId) {
+      cachedTargetTabId = response.targetTabId;
+    }
+  });
+}
+
+updateTargetTabId();
+
+setInterval(updateTargetTabId, 5000);
 
 function flashScreen() {
   const flashOverlay = document.createElement('div');
